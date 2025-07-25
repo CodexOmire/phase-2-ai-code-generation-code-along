@@ -1,102 +1,53 @@
-import React from 'react';
-import DepositForm from './DepositForm';
+import React, { useState } from 'react';
 
-function GoalList({ goals, setGoals }) {
-  const updateGoal = async (id, updatedGoal) => {
-    try {
-      const response = await fetch(`http://localhost:3000/goals/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedGoal),
-      });
-      if (!response.ok) throw new Error('Failed to update goal');
-      const updated = await response.json();
-      setGoals(goals.map((goal) => (goal.id === id ? updated : goal)));
-    } catch (error) {
-      console.error('Error updating goal:', error);
+function GoalList({ goals, onUpdateGoal, onDeleteGoal }) {
+  const [amounts, setAmounts] = useState({});
+
+  const handleSave = (index) => {
+    const amount = parseFloat(amounts[index]);
+    if (!isNaN(amount) && amount > 0) {
+      onUpdateGoal(index, amount);
+      setAmounts({ ...amounts, [index]: '' });
     }
-  };
-
-  const deleteGoal = async (id) => {
-    try {
-      await fetch(`http://localhost:3000/goals/${id}`, { method: 'DELETE' });
-      setGoals(goals.filter((goal) => goal.id !== id));
-    } catch (error) {
-      console.error('Error deleting goal:', error);
-    }
-  };
-
-  const addDeposit = async (id, amount) => {
-    const goal = goals.find((g) => g.id === id);
-    const newSavedAmount = goal.savedAmount + parseFloat(amount);
-
-    try {
-      const response = await fetch(`http://localhost:3000/goals/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ savedAmount: newSavedAmount }),
-      });
-      if (!response.ok) throw new Error('Failed to add deposit');
-      const updated = await response.json();
-      setGoals(goals.map((g) => (g.id === id ? updated : g)));
-    } catch (error) {
-      console.error('Error adding deposit:', error);
-    }
-  };
-
-  const getDaysUntilDeadline = (deadline) => {
-    const today = new Date();
-    const deadlineDate = new Date(deadline);
-    return Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {goals.map((goal) => {
-        const progress = (goal.savedAmount / goal.targetAmount) * 100;
-        const daysLeft = getDaysUntilDeadline(goal.deadline);
-        const isOverdue = daysLeft < 0 && goal.savedAmount < goal.targetAmount;
-        const isNearDeadline = daysLeft <= 30 && daysLeft >= 0 && goal.savedAmount < goal.targetAmount;
-        const isComplete = goal.savedAmount >= goal.targetAmount;
-
+    <div className="space-y-6">
+      {goals.map((goal, index) => {
+        const progress = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100).toFixed(1);
         return (
-          <div
-            key={goal.id}
-            className="bg-white p-6 rounded-lg shadow-lg animate-fade-in hover:shadow-xl transition"
-          >
+          <div key={index} className="bg-white p-6 rounded-2xl shadow-lg space-y-2">
             <h3 className="text-xl font-semibold text-primary">{goal.name}</h3>
-            <p className="text-gray-600">Category: {goal.category}</p>
             <p className="text-gray-600">Target: ${goal.targetAmount.toLocaleString()}</p>
             <p className="text-gray-600">Saved: ${goal.savedAmount.toLocaleString()}</p>
-            <p className="text-gray-600">
-              Remaining: ${(goal.targetAmount - goal.savedAmount).toLocaleString()}
-            </p>
             <p className="text-gray-600">Deadline: {goal.deadline}</p>
-            <div className="progress-bar mt-4">
+            <div className="w-full bg-gray-200 h-3 rounded-full mt-2">
               <div
-                className="progress"
-                style={{
-                  width: `${progress}%`,
-                  background: `linear-gradient(to right, #10B981, #34D399)`,
-                }}
+                className="h-3 rounded-full bg-green-500"
+                style={{ width: `${progress}%` }}
               ></div>
             </div>
-            {isComplete && (
-              <p className="text-secondary font-bold mt-2">Goal Achieved! 🎉</p>
-            )}
-            {isNearDeadline && (
-              <p className="text-warning font-bold mt-2">⚠️ Less than 30 days left!</p>
-            )}
-            {isOverdue && (
-              <p className="text-overdue font-bold mt-2">⏰ Overdue!</p>
-            )}
-            <DepositForm goalId={goal.id} addDeposit={addDeposit} />
-            <button
-              className="mt-4 bg-overdue text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-              onClick={() => deleteGoal(goal.id)}
-            >
-              Delete Goal
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2 mt-4">
+              <input
+                type="number"
+                value={amounts[index] || ''}
+                onChange={(e) => setAmounts({ ...amounts, [index]: e.target.value })}
+                placeholder="Add Amount"
+                className="input-style flex-1"
+              />
+              <button
+                onClick={() => handleSave(index)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => onDeleteGoal(index)}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         );
       })}

@@ -1,85 +1,48 @@
 import React, { useState } from 'react';
 
-function GoalForm({ addGoal, closeModal }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    targetAmount: '',
-    category: '',
-    deadline: '',
-  });
+function GoalForm({ onAddGoal }) {
+  const [goal, setGoal] = useState({ name: '', targetAmount: '', deadline: '' });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addGoal(formData);
-    setFormData({ name: '', targetAmount: '', category: '', deadline: '' });
-    closeModal();
-  };
+    if (!goal.name || !goal.targetAmount || !goal.deadline) return;
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    onAddGoal({ ...goal, savedAmount: 0 });
+    setGoal({ name: '', targetAmount: '', deadline: '' });
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md animate-fade-in">
-        <h2 className="text-2xl font-bold text-primary mb-4">Add New Goal</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Goal Name"
-            className="w-full p-2 mb-4 border rounded-lg"
-            required
-          />
-          <input
-            type="number"
-            name="targetAmount"
-            value={formData.targetAmount}
-            onChange={handleChange}
-            placeholder="Target Amount"
-            className="w-full p-2 mb-4 border rounded-lg"
-            required
-          />
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full p-2 mb-4 border rounded-lg"
-            required
-          >
-            <option value="">Select Category</option>
-            {['Travel', 'Emergency', 'Electronics', 'Real Estate', 'Vehicle', 'Education', 'Shopping', 'Retirement', 'Home'].map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          <input
-            type="date"
-            name="deadline"
-            value={formData.deadline}
-            onChange={handleChange}
-            className="w-full p-2 mb-4 border rounded-lg"
-            required
-          />
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-              onClick={closeModal}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-            >
-              Add Goal
-            </button>
-          </div>
-        </form>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-xl mb-8 space-y-4">
+      <h2 className="text-xl font-semibold text-primary mb-2">Add New Goal</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <input
+          type="text"
+          placeholder="Goal Name"
+          value={goal.name}
+          onChange={(e) => setGoal({ ...goal, name: e.target.value })}
+          className="input-style"
+        />
+        <input
+          type="number"
+          placeholder="Target Amount"
+          value={goal.targetAmount}
+          onChange={(e) => setGoal({ ...goal, targetAmount: parseFloat(e.target.value) })}
+          className="input-style"
+        />
+        <input
+          type="date"
+          value={goal.deadline}
+          onChange={(e) => setGoal({ ...goal, deadline: e.target.value })}
+          className="input-style"
+        />
       </div>
-    </div>
+      <button
+        type="submit"
+        className="mt-4 bg-primary text-white px-6 py-2 rounded-xl hover:bg-primary-dark transition"
+      >
+        Add Goal
+      </button>
+    </form>
   );
 }
 

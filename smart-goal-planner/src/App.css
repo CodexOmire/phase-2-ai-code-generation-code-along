@@ -1,4 +1,42 @@
-/* Custom styles for components not covered by Tailwind */
+/* Grid Layout for Components */
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: #f9fafb;
+}
+
+/* Individual Component Card */
+.component-card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.component-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Title or Header Inside Component */
+.component-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Description or Body Text */
+.component-description {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* Progress Bar Styles */
 .progress-bar {
   height: 1.5rem;
   background: linear-gradient(to right, #e5e7eb, #f3f4f6);
@@ -8,5 +46,7 @@
 
 .progress {
   height: 100%;
+  background-color: #3b82f6; /* Tailwind's blue-500 */
   transition: width 0.5s ease-in-out;
+  border-radius: 0.75rem 0 0 0.75rem;
 }

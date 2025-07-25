@@ -1,45 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import GoalList from './components/GoalList';
-import GoalForm from './components/GoalForm';
+import React, { useState } from 'react';
 import Overview from './components/Overview';
+import GoalForm from './components/GoalForm';
+import GoalList from './components/GoalList';
 
 function App() {
   const [goals, setGoals] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchGoals();
-  }, []);
+  const addGoal = (newGoal) => {
+    setGoals([...goals, newGoal]);
+  };
 
-  const fetchGoals = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/goals');
-      if (!response.ok) throw new Error('Failed to fetch goals');
-      const data = await response.json();
-      setGoals(data);
-    } catch (error) {
-      console.error('Error fetching goals:', error);
-   } catch (error) {
-      console.error('Error adding deposit:', error);
-    }
+  const updateGoal = (index, savedAmount) => {
+    const updatedGoals = [...goals];
+    updatedGoals[index].savedAmount += savedAmount;
+    setGoals(updatedGoals);
+  };
+
+  const deleteGoal = (index) => {
+    const updatedGoals = goals.filter((_, i) => i !== index);
+    setGoals(updatedGoals);
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-primary text-center mb-8">
-        Smart Goal Planner
-      </h1>
-      <Overview goals={goals} />
-      <button
-        className="bg-secondary text-white px-4 py-2 rounded-lg mb-6 hover:bg-green-700 transition"
-        onClick={() => setIsModalOpen(true)}
-      >
-        Add New Goal
-      </button>
-      {isModalOpen && (
-        <GoalForm addGoal={addGoal} closeModal={() => setIsModalOpen(false)} />
-      )}
-      <GoalList goals={goals} setGoals={setGoals} />
+    <div className="min-h-screen bg-gray-50 text-gray-800 px-4 py-8 sm:px-8 md:px-16">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-extrabold text-center text-primary mb-10">Smart Goal Planner</h1>
+        <Overview goals={goals} />
+        <GoalForm onAddGoal={addGoal} />
+        <GoalList goals={goals} onUpdateGoal={updateGoal} onDeleteGoal={deleteGoal} />
+      </div>
     </div>
   );
 }
